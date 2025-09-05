@@ -1,4 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
 import { useAuth } from "@clerk/clerk-react";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,12 +15,16 @@ const updateApiToken = (token: string | null) => {
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
+  const { checkAdminStatus } = useAuthStore();
 
   useEffect(() => {
     const initAuth = async () => {
       try {
         const token = await getToken();
         updateApiToken(token);
+        if (token) {
+          await checkAdminStatus();
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         updateApiToken(null);
