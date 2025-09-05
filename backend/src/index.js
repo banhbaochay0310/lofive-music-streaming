@@ -42,7 +42,7 @@ app.use((err, req, res, next) => {
     .status(500)
     .json({
       message:
-        process.env.NODE_ENV === "development"
+        process.env.NODE_ENV === "production"
           ? "Internal server error"
           : err.message,
     });
@@ -52,3 +52,5 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   connectDB();
 });
+
+// socketio
