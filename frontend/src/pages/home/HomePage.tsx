@@ -31,11 +31,19 @@ const HomePage = () => {
             Good afternoon
           </h1>
           <FeaturedSection />
-        </div>
-        <div className="space-y-8">
-          <SectionGrid title="Made For You" songs={madeForYouSongs} isLoading={isLoading}/>
-          <SectionGrid title="Trending" songs={trendingSongs} isLoading={isLoading}/>
 
+          <div className="space-y-8">
+            <SectionGrid
+              title="Made For You"
+              songs={madeForYouSongs}
+              isLoading={isLoading}
+            />
+            <SectionGrid
+              title="Trending"
+              songs={trendingSongs}
+              isLoading={isLoading}
+            />
+          </div>
         </div>
       </ScrollArea>
     </main>
