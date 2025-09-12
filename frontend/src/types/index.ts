@@ -37,7 +37,7 @@ export interface Message {
 
 export interface User {
   _id: string;
-  cleckrId: string;
+  clerkId: string;
   fullName: string;
   imageUrl: string;
 }
