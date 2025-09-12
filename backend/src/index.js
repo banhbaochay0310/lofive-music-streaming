@@ -60,7 +60,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // cron jobs
-const tempDir = path.join(process.cwd, "tmp");
+const tempDir = path.join(process.cwd(), "tmp");
 cron.schedule("0 0 * * *", () => {
   if (fs.existsSync(tempDir)) {
     fs.readdir(tempDir, (err, files) => {
