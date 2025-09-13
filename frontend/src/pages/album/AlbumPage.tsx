@@ -5,12 +5,7 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Clock, Pause, Play } from "lucide-react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-
-export const formatDuration = (duration: number) => {
-  const minutes = Math.floor(duration / 60);
-  const remainingSeconds = duration % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
+import { formatDuration } from "@/utils/formatDuration";
 
 const AlbumPage = () => {
   const { albumId } = useParams();
@@ -118,7 +113,9 @@ const AlbumPage = () => {
                         <div className="flex items-center justify-center">
                           {isCurrentSong && isPlaying ? (
                             <>
-                              <div className="size-4 text-green-500 group-hover:hidden">♫</div>
+                              <div className="size-4 text-green-500 group-hover:hidden">
+                                ♫
+                              </div>
                               <Pause
                                 className="h-4 w-4 hidden group-hover:block"
                                 fill="white"

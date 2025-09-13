@@ -5,7 +5,7 @@ const ChatHeader = () => {
   const { selectedUser, onlineUsers } = useChatStore();
 
   return (
-    <div className="p-4 border-b border-zinc-800">
+    <div className="p-4 border-b border-zinc-800 backdrop-blur-2xl sticky top-0 bg-zinc-900/50 z-10">
       <div className="flex items-center gap-3">
         <Avatar>
           <AvatarImage src={selectedUser?.imageUrl} />

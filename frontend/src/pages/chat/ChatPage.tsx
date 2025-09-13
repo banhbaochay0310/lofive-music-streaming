@@ -1,7 +1,7 @@
 import Topbar from "@/components/Topbar";
 import { useChatStore } from "@/stores/useChatStore";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import UsersList from "./components/UsersList";
 import ChatHeader from "./components/ChatHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +11,8 @@ import MessageInput from "./components/MessageInput";
 const ChatPage = () => {
   const { user } = useUser();
   const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (user) fetchUsers();
   }, [fetchUsers, user]);
@@ -18,6 +20,12 @@ const ChatPage = () => {
   useEffect(() => {
     if (selectedUser) fetchMessages(selectedUser.clerkId);
   }, [fetchMessages, selectedUser]);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">
@@ -28,19 +36,17 @@ const ChatPage = () => {
         <div className="flex flex-col h-full">
           {selectedUser ? (
             <>
-              <ChatHeader />
-
-              {/* messages area */}
-              <ScrollArea className="h-[calc(100vh-340px)]">
+              <ScrollArea className="h-[calc(100vh-250px)]">
+                <ChatHeader />
                 <div className="p-4 space-y-4">
-                  {(messages ?? []).map((msg) => (
+                  {messages?.map((msg) => (
                     <div
                       key={msg._id}
                       className={`flex items-start gap-3 ${
                         msg.senderId === user?.id ? "flex-row-reverse" : ""
                       }`}
                     >
-                      <Avatar className="size-8 ">
+                      <Avatar className="size-8">
                         <AvatarImage
                           src={
                             msg.senderId === user?.id
@@ -50,7 +56,7 @@ const ChatPage = () => {
                         />
                       </Avatar>
                       <div
-                        className={`rounded-lg p-3 max-w-[70% ] ${
+                        className={`rounded-lg p-3 max-w-[70%] ${
                           msg.senderId === user?.id
                             ? "bg-green-700"
                             : "bg-zinc-800"
@@ -63,6 +69,7 @@ const ChatPage = () => {
                       </div>
                     </div>
                   ))}
+                  <div ref={bottomRef} />
                 </div>
               </ScrollArea>
               {/* message input area */}
@@ -80,8 +87,8 @@ const ChatPage = () => {
 export default ChatPage;
 
 const NoConversationPlaceHolder = () => (
-  <div className="flex flex-col items-center justify-center h-full space-y-6 ">
-    <img src="/Lofive.png" alt="Lofive" className="size-16 animate-bounce " />
+  <div className="flex flex-col items-center justify-center h-full space-y-6">
+    <img src="/Lofive.png" alt="Lofive" className="size-16 animate-bounce" />
     <div className="text-center">
       <h3 className="text-zinc-300 text-lg font-medium mb-1">
         No conversation selected
