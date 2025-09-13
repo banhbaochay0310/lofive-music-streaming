@@ -1,9 +1,9 @@
 import type { Song } from "@/types";
 import SectionGridSkeleton from "@/components/skeletons/SectionGridSkeleton";
-// ...existing code...
-import { Link } from "react-router-dom";
-import PlayButton from "./PlayButton";
 import { Button } from "@/components/ui/button";
+import PlayButton from "./PlayButton";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 type SectionGridProps = {
   title: string;
@@ -11,7 +11,23 @@ type SectionGridProps = {
   isLoading: boolean;
 };
 
+// Danh sách màu cho banner
+const COLORS = [
+  "bg-green-500",
+  "bg-blue-500",
+  "bg-pink-500",
+  "bg-purple-500",
+  "bg-yellow-500",
+  "bg-red-500",
+];
+
 const SectionGrid = ({ title, songs, isLoading }: SectionGridProps) => {
+  // Tạo mảng màu cố định cho từng bài, chỉ thực hiện khi songs thay đổi
+  const songColors = useMemo(() => {
+    const shuffled = [...COLORS].sort(() => 0.5 - Math.random());
+    return songs.map((_, index) => shuffled[index % shuffled.length]);
+  }, [songs]);
+
   if (isLoading) return <SectionGridSkeleton />;
 
   return (
@@ -30,43 +46,44 @@ const SectionGrid = ({ title, songs, isLoading }: SectionGridProps) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {songs.map((song, index) => {
-          const formattedIndex = (index + 1).toString().padStart(2, "0");
+          const colorClass = songColors[index]; // màu cố định
+          const formattedIndex = (index + 1).toString().padStart(2, "0"); // 01, 02, 03
+
           return (
             <div
               key={song._id}
               className="bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer"
             >
               <div className="relative mb-4">
-                {/* Image container */}
+                {/* Image Container */}
                 <div className="aspect-square rounded-md shadow-lg overflow-hidden relative">
                   <img
                     src={song.imageUrl}
                     alt={song.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-md"
                   />
 
                   {/* Logo */}
                   <div className="absolute top-2 left-2 w-8 h-8">
                     <img
                       src="/Spotify.png"
-                      alt=""
+                      alt="Logo"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm flex justify-between items-center px-2 py-1">
-                    {/* Index */}
-                    <div className="opacity-80 bottom-2 left-2 bg-black/40 text-white text-lg font-mono font-bold italic px-2 py-1 rounded-sm">
-                      #{formattedIndex}
-                    </div>
 
-                    {/* Trending icon */}
-                    <div className=" bottom-1 right-2 size-10">
-                      <img
-                        src="/Trend.png"
-                        alt="Hot"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                  {/* "Daily Mix" */}
+                  <div
+                    className={`opacity-80 absolute bottom-2 left-2 text-white text-sm font-bold px-2 py-1 rounded ${colorClass}`}
+                  >
+                    DailyMix
+                  </div>
+
+                  {/* Index */}
+                  <div
+                    className={`opacity-80 absolute bottom-2 right-2 text-white text-sm font-bold px-2 py-1 rounded ${colorClass}`}
+                  >
+                    {formattedIndex}
                   </div>
                 </div>
 

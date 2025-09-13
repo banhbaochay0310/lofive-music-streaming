@@ -7,14 +7,6 @@ const AudioPlayer = () => {
 
   const { currentSong, isPlaying, playNext } = usePlayerStore();
 
-  // handle play/pause
-  useEffect(() => {
-    if (isPlaying) {
-      audioRef.current?.play();
-    } else {
-      audioRef.current?.pause();
-    }
-  }, [isPlaying]);
 
   // handle song ends
   useEffect(() => {
@@ -40,6 +32,7 @@ const AudioPlayer = () => {
     const isSongChange = prevSongRef.current !== currentSong?.audioUrl;
     if (isSongChange) {
       audio.src = currentSong?.audioUrl;
+      console.log("AudioPlayer: set audio.src", audio.src);
       // reset current time
       audio.currentTime = 0;
 
@@ -47,6 +40,31 @@ const AudioPlayer = () => {
       if (isPlaying) {
         audio.play();
       }
+    }
+  }, [currentSong, isPlaying]);
+  // handle song changes and play/pause together
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (!currentSong) {
+      audio.pause();
+      return;
+    }
+
+    const isSongChange = prevSongRef.current !== currentSong.audioUrl;
+    if (isSongChange) {
+      audio.src = currentSong.audioUrl;
+      audio.currentTime = 0;
+      prevSongRef.current = currentSong.audioUrl;
+    }
+
+    console.log("AudioPlayer: currentSong", currentSong, "isPlaying", isPlaying, "audio.src", audio.src);
+
+    if (isPlaying) {
+      audio.play().catch((err) => console.warn("Audio play failed:", err));
+    } else {
+      audio.pause();
     }
   }, [currentSong, isPlaying]);
 
