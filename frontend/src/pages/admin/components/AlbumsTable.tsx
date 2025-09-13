@@ -27,7 +27,7 @@ const AlbumsTable = () => {
           <TableHead>Artist</TableHead>
           <TableHead>Release Year</TableHead>
           <TableHead>Songs</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="text-right">Action</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
