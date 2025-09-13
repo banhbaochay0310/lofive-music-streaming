@@ -22,6 +22,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
+import { useAuth } from "@clerk/clerk-react";
 
 interface NewSong {
   title: string;
@@ -32,8 +33,8 @@ interface NewSong {
 
 const AddSongDialog = () => {
   const { albums } = useMusicStore();
-  const [ songDialogOpen, setSongDialogOpen ] = useState(false);
-  const [ isLoading, setIsLoading ] = useState(false);
+  const [songDialogOpen, setSongDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [newSong, setNewSong] = useState<NewSong>({
     title: "",
@@ -52,6 +53,8 @@ const AddSongDialog = () => {
 
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const { getToken } = useAuth();
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -73,9 +76,12 @@ const AddSongDialog = () => {
       formData.append("audioFile", files.audio);
       formData.append("imageFile", files.image);
 
+      const token = await getToken();
+
       await axiosInstance.post("/admin/songs", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
 
