@@ -33,7 +33,7 @@ const ChatPage = () => {
               {/* messages area */}
               <ScrollArea className="h-[calc(100vh-340px)]">
                 <div className="p-4 space-y-4">
-                  {messages.map((msg) => (
+                  {(messages ?? []).map((msg) => (
                     <div
                       key={msg._id}
                       className={`flex items-start gap-3 ${
