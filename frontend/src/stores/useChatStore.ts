@@ -23,7 +23,8 @@ interface ChatStore {
   setSelectedUser: (user: User | null) => void;
 }
 
-const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
+const baseURL =
+  import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
 
 const socket = io(baseURL, {
   autoConnect: false, // only connect if user is authenticated
@@ -126,7 +127,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get(`/users/messages/${userId}`);
-      set({ messages: response.data });
+      const data = response.data;
+      const safeMessages = Array.isArray(data)
+        ? data
+        : data?.messages && Array.isArray(data.messages)
+        ? data.messages
+        : [];
+
+      set({ messages: safeMessages });
+      // set({ messages: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
