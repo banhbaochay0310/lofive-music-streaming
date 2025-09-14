@@ -113,18 +113,39 @@ const AlbumPage = () => {
                         <div className="flex items-center justify-center">
                           {isCurrentSong && isPlaying ? (
                             <>
-                              <div className="size-4 text-green-500 group-hover:hidden">
+                              <div className="size-5 text-green-500 group-hover:hidden">
                                 ♫
                               </div>
                               <Pause
                                 className="h-4 w-4 hidden group-hover:block"
                                 fill="white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePlay();
+                                }}
                               />
                             </>
                           ) : (
                             <span className="group-hover:hidden">
                               {index + 1}
                             </span>
+                          )}
+                          {isCurrentSong && !isPlaying ? (
+                            <>
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePlaySong(index);
+                                }}
+                              >
+                                <Play
+                                  className="h-4 w-4 hidden group-hover:block"
+                                  fill="white"
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <></>
                           )}
                           {!isCurrentSong && (
                             <div
