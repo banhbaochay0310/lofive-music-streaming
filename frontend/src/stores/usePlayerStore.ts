@@ -219,7 +219,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     return likedSongs.some((song) => song._id === songId);
   },
 
-  initializeLikedSongs: async (userId: string) => {
+  initializeLikedSongs: async () => {
     try {
       set({ isLoading: true });
       const response = await axiosInstance.get("/liked-songs");
