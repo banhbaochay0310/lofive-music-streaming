@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import {
-  Heart,
   Laptop2,
   ListMusic,
-  Mic2,
   Pause,
   Play,
   Repeat,
