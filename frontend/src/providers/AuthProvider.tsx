@@ -2,6 +2,7 @@
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore.ts";
 import { useChatStore } from "@/stores/useChatStore";
+import { usePlayerStore } from "@/stores/usePlayerStore";
 import { useAuth } from "@clerk/clerk-react";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -19,6 +20,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { checkAdminStatus } = useAuthStore();
   const { initSocket, disconnectSocket } = useChatStore();
+  const { initializeLikedSongs, resetLikedSongs } = usePlayerStore();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -28,7 +30,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (token) {
           await checkAdminStatus();
           // init socket
-          if (userId) initSocket(userId);
+          if (userId) {
+            initSocket(userId);
+            initializeLikedSongs(userId);
+          }
+        } else {
+          resetLikedSongs();
         }
       } catch (error: any) {
         updateApiToken(null);
@@ -52,9 +59,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     return () => {
       clearInterval(tokenInterval);
+      resetLikedSongs();
     };
 
-  }, [getToken, userId, checkAdminStatus, initSocket, disconnectSocket]);
+  }, [getToken, userId, checkAdminStatus, initSocket, disconnectSocket, initializeLikedSongs, resetLikedSongs]);
 
   if (loading) {
     return (

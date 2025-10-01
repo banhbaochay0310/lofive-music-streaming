@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { Song } from "../types";
 import { useChatStore } from "./useChatStore";
+import { axiosInstance } from "@/lib/axios";
+import toast from "react-hot-toast";
 
 interface PlayerStore {
   currentSong: Song | null;
@@ -8,6 +10,7 @@ interface PlayerStore {
   queue: Song[];
   currentIndex: number;
   likedSongs: Song[];
+  isLoading: boolean;
 
   initializeQueue: (songs: Song[]) => void;
   playAlbum: (songs: Song[], startIndex: number) => void;
@@ -18,6 +21,8 @@ interface PlayerStore {
   playFromQueue: (index: number) => void;
   toggleLikeSong: (song: Song) => void;
   isLiked: (songId: string) => boolean;
+  initializeLikedSongs: (userId: string) => void;
+  resetLikedSongs: () => void;
 }
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
@@ -25,7 +30,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   isPlaying: false,
   queue: [],
   currentIndex: -1,
-  likedSongs: JSON.parse(localStorage.getItem('likedSongs') || '[]'),
+  likedSongs: [],
+  isLoading: false,
 
   initializeQueue: (songs: Song[]) => {
     set({
@@ -183,23 +189,51 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     }
   },
 
-  toggleLikeSong: (song: Song) => {
-    const { likedSongs } = get();
-    const songIndex = likedSongs.findIndex((s) => s._id === song._id);
-    
-    let newLikedSongs;
-    if (songIndex === -1) {
-      newLikedSongs = [...likedSongs, song];
-    } else {
-      newLikedSongs = likedSongs.filter((s) => s._id !== song._id);
+  toggleLikeSong: async (song: Song) => {
+    try {
+      // Call API to toggle like status
+      await axiosInstance.post(`/liked-songs/${song._id}`);
+      
+      // Update local state
+      const { likedSongs } = get();
+      const songIndex = likedSongs.findIndex((s) => s._id === song._id);
+      
+      let newLikedSongs;
+      if (songIndex === -1) {
+        newLikedSongs = [...likedSongs, song];
+        toast.success("Added to your Liked Songs");
+      } else {
+        newLikedSongs = likedSongs.filter((s) => s._id !== song._id);
+        toast.success("Removed from your Liked Songs");
+      }
+
+      set({ likedSongs: newLikedSongs });
+    } catch (error) {
+      console.error("Failed to toggle like status:", error);
+      toast.error("Failed to update Liked Songs");
     }
-    
-    localStorage.setItem('likedSongs', JSON.stringify(newLikedSongs));
-    set({ likedSongs: newLikedSongs });
   },
 
   isLiked: (songId: string) => {
     const { likedSongs } = get();
     return likedSongs.some((song) => song._id === songId);
+  },
+
+  initializeLikedSongs: async (userId: string) => {
+    try {
+      set({ isLoading: true });
+      const response = await axiosInstance.get("/liked-songs");
+      set({ likedSongs: response.data });
+    } catch (error) {
+      console.error("Failed to fetch liked songs:", error);
+      toast.error("Failed to load Liked Songs");
+      set({ likedSongs: [] });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  resetLikedSongs: () => {
+    set({ likedSongs: [] });
   },
 }));
