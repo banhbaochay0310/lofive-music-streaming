@@ -1,7 +1,9 @@
+import LikeButton from "@/components/LikeButton";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import {
+  Heart,
   Laptop2,
   ListMusic,
   Mic2,
@@ -21,7 +23,12 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
-export const PlaybackControls = () => {
+interface PlaybackControlsProps {
+  showQueue: boolean;
+  setShowQueue: (show: boolean) => void;
+}
+
+export const PlaybackControls = ({ showQueue, setShowQueue }: PlaybackControlsProps) => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
     usePlayerStore();
 
@@ -152,17 +159,20 @@ export const PlaybackControls = () => {
           </div>
         </div>
         <div className="hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end">
+          {currentSong && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:text-white text-zinc-400"
+            >
+              <LikeButton song={currentSong} />
+            </Button>
+          )}
           <Button
             size="icon"
             variant="ghost"
-            className="hover:text-white text-zinc-400"
-          >
-            <Mic2 className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="hover:text-white text-zinc-400"
+            className={`hover:text-white ${showQueue ? "text-emerald-400" : "text-zinc-400"}`}
+            onClick={() => setShowQueue(!showQueue)}
           >
             <ListMusic className="h-4 w-4" />
           </Button>

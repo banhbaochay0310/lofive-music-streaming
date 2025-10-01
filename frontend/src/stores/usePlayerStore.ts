@@ -7,6 +7,7 @@ interface PlayerStore {
   isPlaying: boolean;
   queue: Song[];
   currentIndex: number;
+  likedSongs: Song[];
 
   initializeQueue: (songs: Song[]) => void;
   playAlbum: (songs: Song[], startIndex: number) => void;
@@ -14,6 +15,9 @@ interface PlayerStore {
   togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
+  playFromQueue: (index: number) => void;
+  toggleLikeSong: (song: Song) => void;
+  isLiked: (songId: string) => boolean;
 }
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
@@ -21,6 +25,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   isPlaying: false,
   queue: [],
   currentIndex: -1,
+  likedSongs: JSON.parse(localStorage.getItem('likedSongs') || '[]'),
 
   initializeQueue: (songs: Song[]) => {
     set({
@@ -156,5 +161,45 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         });
       }
     }
+  },
+
+  playFromQueue: (index: number) => {
+    const { queue } = get();
+    if (index >= 0 && index < queue.length) {
+      const song = queue[index];
+
+      const socket = useChatStore.getState().socket;
+      if (socket.auth) {
+        socket.emit("update_activity", {
+          userId: socket.auth.userId,
+          activity: `Playing ${song.title} by ${song.artist}`,
+        });
+      }
+      set({
+        currentSong: song,
+        currentIndex: index,
+        isPlaying: true,
+      });
+    }
+  },
+
+  toggleLikeSong: (song: Song) => {
+    const { likedSongs } = get();
+    const songIndex = likedSongs.findIndex((s) => s._id === song._id);
+    
+    let newLikedSongs;
+    if (songIndex === -1) {
+      newLikedSongs = [...likedSongs, song];
+    } else {
+      newLikedSongs = likedSongs.filter((s) => s._id !== song._id);
+    }
+    
+    localStorage.setItem('likedSongs', JSON.stringify(newLikedSongs));
+    set({ likedSongs: newLikedSongs });
+  },
+
+  isLiked: (songId: string) => {
+    const { likedSongs } = get();
+    return likedSongs.some((song) => song._id === songId);
   },
 }));
