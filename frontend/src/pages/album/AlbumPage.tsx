@@ -6,6 +6,7 @@ import { Clock, Pause, Play } from "lucide-react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { formatDuration } from "@/utils/formatDuration";
+import LikeButton from "@/components/LikeButton";
 
 const AlbumPage = () => {
   const { albumId } = useParams();
@@ -188,8 +189,11 @@ const AlbumPage = () => {
                             }
                           )}
                         </div>
-                        <div className="flex items-center">
-                          {formatDuration(song.duration)}
+                        <div className="flex items-center justify-between">
+                          <div>{formatDuration(song.duration)}</div>
+                          <div className="opacity-0 group-hover:opacity-100">
+                            <LikeButton song={song} />
+                          </div>
                         </div>
                       </div>
                     );
