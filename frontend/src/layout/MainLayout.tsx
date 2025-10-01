@@ -8,10 +8,12 @@ import LeftSidebar from "./components/LeftSidebar.tsx";
 import FriendsActivity from "./components/FriendsActivity.tsx";
 import AudioPlayer from "./components/AudioPlayer.tsx";
 import { PlaybackControls } from "./components/PlaybackControls.tsx";
+import Queue from "./components/Queue.tsx";
 import { useEffect, useState } from "react";
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [showQueue, setShowQueue] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -57,13 +59,13 @@ const MainLayout = () => {
               maxSize={30}
               collapsedSize={0}
             >
-              <FriendsActivity />
+              {showQueue ? <Queue /> : <FriendsActivity />}
             </ResizablePanel>
           </>
         )}
       </ResizablePanelGroup>
 
-      <PlaybackControls />
+      <PlaybackControls showQueue={showQueue} setShowQueue={setShowQueue} />
     </div>
   );
 };
