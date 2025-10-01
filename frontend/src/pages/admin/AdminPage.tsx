@@ -7,6 +7,7 @@ import SongsTabContent from "./components/SongsTabContent";
 import AlbumsTabContent from "./components/AlbumsTabContent";
 import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { retry } from "@/lib/retry";
 
 const AdminPage = () => {
   const { isAdmin, isLoading } = useAuthStore();
@@ -14,9 +15,15 @@ const AdminPage = () => {
   const { fetchAlbums, fetchSongs, fetchStats } = useMusicStore();
 
   useEffect(() => {
-    fetchAlbums();
-    fetchSongs();
-    fetchStats();
+    const initData = async () => {
+      await Promise.all([
+        retry(() => fetchAlbums()),
+        retry(() => fetchSongs()),
+        retry(() => fetchStats())
+      ]);
+    };
+
+    initData();
   }, [fetchAlbums, fetchSongs, fetchStats]);
 
   if (!isAdmin && !isLoading) return <div>Unauthorized</div>;

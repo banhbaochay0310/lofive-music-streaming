@@ -3,6 +3,7 @@ import { axiosInstance } from "@/lib/axios";
 import type { Message, User } from "@/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
+import { retry } from "@/lib/retry";
 
 interface ChatStore {
   users: User[];
@@ -126,7 +127,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   fetchMessages: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get(`/users/messages/${userId}`);
+      const response = await retry(() => axiosInstance.get(`/users/messages/${userId}`));
       const data = response.data;
       const safeMessages = Array.isArray(data)
         ? data
@@ -135,7 +136,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         : [];
 
       set({ messages: safeMessages });
-      // set({ messages: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {

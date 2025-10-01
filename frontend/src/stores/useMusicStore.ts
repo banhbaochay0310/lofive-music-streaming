@@ -3,6 +3,7 @@ import { axiosInstance } from "@/lib/axios";
 import type { Album, Song, Stats } from "@/types";
 import toast from "react-hot-toast";
 import { create } from "zustand";
+import { retry } from "@/lib/retry";
 
 interface MusicStore {
   songs: Song[];
@@ -45,7 +46,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   deleteSong: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/admin/songs/${id}`);
+      await retry(() => axiosInstance.delete(`/admin/songs/${id}`));
       set((state) => ({
         songs: state.songs.filter((song) => song._id !== id),
       }));
@@ -60,7 +61,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   deleteAlbum: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await axiosInstance.delete(`/admin/albums/${id}`);
+      await retry(() => axiosInstance.delete(`/admin/albums/${id}`));
       set((state) => ({
         albums: state.albums.filter((album) => album._id !== id),
         songs: state.songs.map((song) =>
@@ -92,7 +93,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchStats: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/stats");
+      const response = await retry(() => axiosInstance.get("/stats"));
       set({ stats: response.data });
     } catch (error: any) {
       set({ error: error.message });

@@ -37,10 +37,23 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
       }
     };
-    initAuth();
+    
+    // Automatically update token when it changes
+    const tokenInterval = setInterval(async () => {
+      try {
+        const newToken = await getToken();
+        updateApiToken(newToken);
+      } catch (error) {
+        console.log("Token refresh failed", error);
+      }
+    }, 1000); // Check every second
 
-    // cleanup
-    return () => disconnectSocket();
+    initAuth();
+    
+    return () => {
+      clearInterval(tokenInterval);
+    };
+
   }, [getToken, userId, checkAdminStatus, initSocket, disconnectSocket]);
 
   if (loading) {
