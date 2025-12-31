@@ -64,48 +64,50 @@ const LeftSidebar = () => {
 
         <ScrollArea className="h-[calc(100vh-300px)]">
           <div className="space-y-2">
-            <Link
-              to="/liked-songs"
-              className={cn(
-                "p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer",
-                {
-                  "bg-zinc-800": location.pathname === "/liked-songs",
-                }
-              )}
-            >
-              <img
-                src="LikedSong.jpg"
-                alt=""
-                className="size-12 rounded-md flex-shrink-0 object-cover"
-              />
-              <div className="flex-1 min-w-0 hidden md:block">
-                <p className="font-medium truncate">Liked Songs</p>
-                <p className="text-sm text-zinc-400 truncate">Playlist</p>
-              </div>
-            </Link>
             {isLoading ? (
               <PlaylistSkeleton />
             ) : (
-              albums.map((album) => (
+              <>
                 <Link
-                  to={`/albums/${album._id}`}
-                  key={album._id}
-                  className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
+                  to="/liked-songs"
+                  className={cn(
+                    "p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer",
+                    {
+                      "bg-zinc-800": location.pathname === "/liked-songs",
+                    }
+                  )}
                 >
                   <img
-                    src={album.imageUrl}
+                    src="LikedSong.jpg"
                     alt=""
                     className="size-12 rounded-md flex-shrink-0 object-cover"
                   />
-
                   <div className="flex-1 min-w-0 hidden md:block">
-                    <p className="font-medium truncate">{album.title}</p>
-                    <p className="text-sm text-zinc-400 truncate">
-                      Album • {album.artist}
-                    </p>
+                    <p className="font-medium truncate">Liked Songs</p>
+                    <p className="text-sm text-zinc-400 truncate">Playlist</p>
                   </div>
                 </Link>
-              ))
+                {albums.map((album) => (
+                  <Link
+                    to={`/albums/${album._id}`}
+                    key={album._id}
+                    className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
+                  >
+                    <img
+                      src={album.imageUrl}
+                      alt=""
+                      className="size-12 rounded-md flex-shrink-0 object-cover"
+                    />
+
+                    <div className="flex-1 min-w-0 hidden md:block">
+                      <p className="font-medium truncate">{album.title}</p>
+                      <p className="text-sm text-zinc-400 truncate">
+                        Album • {album.artist}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </>
             )}
           </div>
         </ScrollArea>
