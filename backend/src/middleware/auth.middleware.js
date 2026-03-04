@@ -1,10 +1,9 @@
 import { clerkClient } from "@clerk/express";
+import { UnauthorizedError, ForbiddenError } from "./error.middleware.js";
 
 export const protectRoute = async (req, res, next) => {
   if (!req.auth.userId) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized - you must be logged in" });
+    return next(new UnauthorizedError("You must be logged in to access this resource"));
   }
   next();
 };
@@ -16,9 +15,7 @@ export const requireAdmin = async (req, res, next) => {
       process.env.ADMIN_EMAIL === currentUser.primaryEmailAddress.emailAddress;
 
     if (!isAdmin) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized - you must be an admin" });
+      throw new ForbiddenError("Admin access required");
     }
 
     next();
