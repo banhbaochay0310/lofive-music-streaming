@@ -4,6 +4,11 @@ import { useChatStore } from "./useChatStore";
 import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 
+// Fire-and-forget play count increment
+const trackPlay = (songId: string) => {
+  axiosInstance.patch(`/songs/${songId}/play`).catch(() => {});
+};
+
 interface PlayerStore {
   currentSong: Song | null;
   isPlaying: boolean;
@@ -59,6 +64,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       currentIndex: startIndex,
       isPlaying: true,
     });
+    trackPlay(song._id);
   },
 
   setCurrentSong: (song: Song | null) => {
@@ -79,6 +85,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
       isPlaying: true,
       currentIndex: songIndex !== -1 ? songIndex : get().currentIndex,
     });
+    trackPlay(song._id);
   },
 
   togglePlay: () => {
@@ -120,6 +127,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         currentIndex: nextIndex,
         isPlaying: true,
       });
+      trackPlay(nextSong._id);
     } else {
       set({
         isPlaying: false,
@@ -154,6 +162,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         currentIndex: prevIndex,
         isPlaying: true,
       });
+      trackPlay(prevSong._id);
     } else {
       set({
         isPlaying: false,
@@ -186,6 +195,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         currentIndex: index,
         isPlaying: true,
       });
+      trackPlay(song._id);
     }
   },
 
