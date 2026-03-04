@@ -27,6 +27,10 @@ const songSchema = new mongoose.Schema(
       ref: "Album",
       required: false,
     },
+    playCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

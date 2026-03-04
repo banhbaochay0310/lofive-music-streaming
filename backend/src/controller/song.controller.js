@@ -31,9 +31,26 @@ export const getMadeForYouSongs = async (req, res, next) => {
 
 export const getTrendingSongs = async (req, res, next) => {
   try {
-    // next 8 songs after featured (skip 6 newest, no overlap)
-    const songs = await Song.find().sort({ createdAt: -1 }).skip(6).limit(8);
+    // Top 8 most played songs (real trending based on engagement)
+    const songs = await Song.find().sort({ playCount: -1, createdAt: -1 }).limit(8);
     res.status(200).json(songs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const incrementPlayCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const song = await Song.findByIdAndUpdate(
+      id,
+      { $inc: { playCount: 1 } },
+      { new: true }
+    );
+    if (!song) {
+      return res.status(404).json({ message: "Song not found" });
+    }
+    res.status(200).json({ playCount: song.playCount });
   } catch (error) {
     next(error);
   }
