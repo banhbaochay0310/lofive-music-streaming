@@ -18,6 +18,7 @@ import songRoutes from "./routes/song.route.js";
 import albumRoutes from "./routes/album.route.js";
 import statRoutes from "./routes/stat.route.js";
 import likedSongRoutes from "./routes/liked-song.route.js";
+import { errorHandler, notFound } from "./middleware/error.middleware.js";
 
 dotenv.config();
 
@@ -77,15 +78,11 @@ cron.schedule("0 0 * * *", () => {
   }
 });
 
-// error handler
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    message:
-      process.env.NODE_ENV === "production"
-        ? "Internal server error"
-        : err.message,
-  });
-});
+// Handle 404 routes (must be after all other routes)
+app.use(notFound);
+
+// Global error handler (must be last middleware)
+app.use(errorHandler);
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
