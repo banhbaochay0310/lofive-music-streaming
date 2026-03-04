@@ -88,7 +88,7 @@ export const createAlbum = async (req, res, next) => {
 
     await album.save();
 
-    res.staterror("Error in createAlbum controller:", error.message)
+    res.status(201).json(album);
   } catch (error) {
     console.log("Error creating album:", error);
     next(error);
