@@ -41,7 +41,7 @@ const LikedSongsPage = () => {
           <div className="relative z-10">
             <div className="flex p-6 gap-6 pb-8">
               <img
-                src="LikedSong.jpg"
+                src="/LikedSong.jpg"
                 alt=""
                 className="w-[240px] h-[240px] rounded shadow-xl"
               />
@@ -86,7 +86,8 @@ const LikedSongsPage = () => {
                 <div className="space-y-2 py-4">
                   {likedSongs.length === 0 ? (
                     <div className="text-center py-8 text-zinc-400">
-                      This album feels a little empty...
+                      You haven't liked any songs yet. Start liking songs and
+                      they'll appear here!
                     </div>
                   ) : (
                     likedSongs.map((song, index) => {
