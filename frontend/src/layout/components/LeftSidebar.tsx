@@ -1,22 +1,29 @@
 import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton.tsx";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { SignedIn } from "@clerk/clerk-react";
-import { HomeIcon, Library, MessageCircle } from "lucide-react";
+import { usePlaylistStore } from "@/stores/usePlaylistStore";
+import { SignedIn, useAuth } from "@clerk/clerk-react";
+import { HomeIcon, Library, ListMusic, MessageCircle, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const LeftSidebar = () => {
   const { albums, fetchAlbums, isLoading } = useMusicStore();
+  const { playlists, fetchMyPlaylists, createPlaylist } = usePlaylistStore();
+  const { userId } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
     fetchAlbums();
   }, [fetchAlbums]);
 
-  console.log({ albums });
+  useEffect(() => {
+    if (userId) {
+      fetchMyPlaylists();
+    }
+  }, [userId, fetchMyPlaylists]);
 
   return (
     <div className="h-full flex flex-col gap-2">
@@ -60,6 +67,16 @@ const LeftSidebar = () => {
             <Library className="size-5 mr-2" />
             <span className="hidden md:inline">Playlists</span>
           </div>
+          <SignedIn>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-zinc-400 hover:text-white"
+              onClick={() => createPlaylist(`My Playlist #${playlists.length + 1}`)}
+            >
+              <Plus className="size-4" />
+            </Button>
+          </SignedIn>
         </div>
 
         <ScrollArea className="h-[calc(100vh-300px)]">
@@ -68,6 +85,7 @@ const LeftSidebar = () => {
               <PlaylistSkeleton />
             ) : (
               <>
+                {/* Liked Songs — always first */}
                 <Link
                   to="/liked-songs"
                   className={cn(
@@ -78,7 +96,7 @@ const LeftSidebar = () => {
                   )}
                 >
                   <img
-                    src="LikedSong.jpg"
+                    src="/LikedSong.jpg"
                     alt=""
                     className="size-12 rounded-md flex-shrink-0 object-cover"
                   />
@@ -87,6 +105,31 @@ const LeftSidebar = () => {
                     <p className="text-sm text-zinc-400 truncate">Playlist</p>
                   </div>
                 </Link>
+
+                {/* User playlists */}
+                {playlists.map((playlist) => (
+                  <Link
+                    to={`/playlists/${playlist._id}`}
+                    key={playlist._id}
+                    className={cn(
+                      "p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer",
+                      {
+                        "bg-zinc-800":
+                          location.pathname === `/playlists/${playlist._id}`,
+                      }
+                    )}
+                  >
+                    <div className="size-12 rounded-md flex-shrink-0 bg-zinc-800 flex items-center justify-center">
+                      <ListMusic className="size-6 text-zinc-400" />
+                    </div>
+                    <div className="flex-1 min-w-0 hidden md:block">
+                      <p className="font-medium truncate">{playlist.title}</p>
+                      <p className="text-sm text-zinc-400 truncate">Playlist</p>
+                    </div>
+                  </Link>
+                ))}
+
+                {/* Albums */}
                 {albums.map((album) => (
                   <Link
                     to={`/albums/${album._id}`}
