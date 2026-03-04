@@ -7,7 +7,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { useMusicStore } from "@/stores/useMusicStore";
-import { Calendar, Trash2 } from "lucide-react";
+import { Calendar, Headphones, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SongsTable = () => {
@@ -34,6 +34,7 @@ const SongsTable = () => {
           <TableHead className="w-[50px]"></TableHead>
           <TableHead>Title</TableHead>
           <TableHead>Artist</TableHead>
+          <TableHead>Plays</TableHead>
           <TableHead>Release Date</TableHead>
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
@@ -50,6 +51,12 @@ const SongsTable = () => {
             </TableCell>
             <TableCell className="font-medium">{song.title}</TableCell>
             <TableCell>{song.artist}</TableCell>
+            <TableCell>
+              <span className="inline-flex items-center gap-1 text-zinc-400">
+                <Headphones className="size-4" />
+                {(song.playCount ?? 0).toLocaleString()}
+              </span>
+            </TableCell>
             <TableCell>
               <span className="inline-flex items-center gap-1 text-zinc-400">
                 <Calendar className="size-4" />
