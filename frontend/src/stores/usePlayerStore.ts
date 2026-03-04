@@ -16,6 +16,8 @@ interface PlayerStore {
   currentIndex: number;
   likedSongs: Song[];
   isLoading: boolean;
+  isShuffled: boolean;
+  repeatMode: "none" | "all" | "one";
 
   initializeQueue: (songs: Song[]) => void;
   playAlbum: (songs: Song[], startIndex: number) => void;
@@ -28,6 +30,8 @@ interface PlayerStore {
   isLiked: (songId: string) => boolean;
   initializeLikedSongs: (userId: string) => void;
   resetLikedSongs: () => void;
+  toggleShuffle: () => void;
+  toggleRepeat: () => void;
 }
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
@@ -37,6 +41,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   currentIndex: -1,
   likedSongs: [],
   isLoading: false,
+  isShuffled: false,
+  repeatMode: "none",
 
   initializeQueue: (songs: Song[]) => {
     set({
@@ -109,8 +115,25 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   },
 
   playNext: () => {
-    const { queue, currentIndex } = get();
-    const nextIndex = currentIndex + 1;
+    const { queue, currentIndex, isShuffled, repeatMode } = get();
+
+    // Repeat one is handled by AudioPlayer (restarts same song)
+    // This function is only called when we truly want the next song
+
+    let nextIndex: number;
+
+    if (isShuffled) {
+      // Pick a random index different from current
+      if (queue.length <= 1) {
+        nextIndex = 0;
+      } else {
+        do {
+          nextIndex = Math.floor(Math.random() * queue.length);
+        } while (nextIndex === currentIndex);
+      }
+    } else {
+      nextIndex = currentIndex + 1;
+    }
 
     if (nextIndex < queue.length) {
       const nextSong = queue[nextIndex];
@@ -128,6 +151,22 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         isPlaying: true,
       });
       trackPlay(nextSong._id);
+    } else if (repeatMode === "all") {
+      // Loop back to beginning
+      const firstSong = queue[0];
+      const socket = useChatStore.getState().socket;
+      if (socket.auth) {
+        socket.emit("update_activity", {
+          userId: socket.auth.userId,
+          activity: `Playing ${firstSong.title} by ${firstSong.artist}`,
+        });
+      }
+      set({
+        currentSong: firstSong,
+        currentIndex: 0,
+        isPlaying: true,
+      });
+      trackPlay(firstSong._id);
     } else {
       set({
         isPlaying: false,
@@ -245,5 +284,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   resetLikedSongs: () => {
     set({ likedSongs: [] });
+  },
+
+  toggleShuffle: () => {
+    set((state) => ({ isShuffled: !state.isShuffled }));
+  },
+
+  toggleRepeat: () => {
+    set((state) => {
+      const modes: Array<"none" | "all" | "one"> = ["none", "all", "one"];
+      const currentIdx = modes.indexOf(state.repeatMode);
+      const nextMode = modes[(currentIdx + 1) % modes.length];
+      return { repeatMode: nextMode };
+    });
   },
 }));

@@ -13,7 +13,16 @@ const AudioPlayer = () => {
     const audio = audioRef.current;
 
     const handleEnded = () => {
-      playNext();
+      const currentRepeatMode = usePlayerStore.getState().repeatMode;
+      if (currentRepeatMode === "one") {
+        // Repeat current song: restart from beginning
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+      } else {
+        playNext();
+      }
     };
 
     audio?.addEventListener("ended", handleEnded);

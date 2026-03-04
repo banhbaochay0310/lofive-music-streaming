@@ -8,6 +8,7 @@ import {
   Pause,
   Play,
   Repeat,
+  Repeat1,
   Shuffle,
   SkipBack,
   SkipForward,
@@ -27,7 +28,7 @@ interface PlaybackControlsProps {
 }
 
 export const PlaybackControls = ({ showQueue, setShowQueue }: PlaybackControlsProps) => {
-  const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
+  const { currentSong, isPlaying, togglePlay, playNext, playPrevious, isShuffled, toggleShuffle, repeatMode, toggleRepeat } =
     usePlayerStore();
 
   const [volume, setVolume] = useState(75);
@@ -47,16 +48,9 @@ export const PlaybackControls = ({ showQueue, setShowQueue }: PlaybackControlsPr
     audio.addEventListener("timeupdate", updateTime);
     audio.addEventListener("loadedmetadata", updateDuration);
 
-    const handleEnded = () => {
-      usePlayerStore.setState({ isPlaying: false });
-    };
-
-    audio.addEventListener("ended", handleEnded);
-
     return () => {
       audio.removeEventListener("timeupdate", updateTime);
       audio.removeEventListener("loadedmetadata", updateDuration);
-      audio.removeEventListener("ended", handleEnded);
     };
   }, [currentSong]);
 
@@ -95,7 +89,10 @@ export const PlaybackControls = ({ showQueue, setShowQueue }: PlaybackControlsPr
             <Button
               size="icon"
               variant="ghost"
-              className="hidden sm:inline-flex hover:text-white text-zinc-400"
+              className={`hidden sm:inline-flex hover:text-white ${
+                isShuffled ? "text-emerald-400" : "text-zinc-400"
+              }`}
+              onClick={toggleShuffle}
             >
               <Shuffle className="h-4 w-4" />
             </Button>
@@ -134,9 +131,16 @@ export const PlaybackControls = ({ showQueue, setShowQueue }: PlaybackControlsPr
             <Button
               size="icon"
               variant="ghost"
-              className="hidden sm:inline-flex hover:text-white text-zinc-400"
+              className={`hidden sm:inline-flex hover:text-white ${
+                repeatMode !== "none" ? "text-emerald-400" : "text-zinc-400"
+              }`}
+              onClick={toggleRepeat}
             >
-              <Repeat className="h-4 w-4" />
+              {repeatMode === "one" ? (
+                <Repeat1 className="h-4 w-4" />
+              ) : (
+                <Repeat className="h-4 w-4" />
+              )}
             </Button>
           </div>
 
