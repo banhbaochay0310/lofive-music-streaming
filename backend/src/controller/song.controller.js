@@ -11,15 +11,8 @@ export const getAllSongs = async (req, res, next) => {
 
 export const getFeaturedSongs = async (req, res, next) => {
   try {
-    // fetch 6 random songs
-    const songs = await Song.aggregate([
-      {
-        $sample: { size: 6 },
-      },
-      {
-        $project: { title: 1, artist: 1, imageUrl: 1, audioUrl: 1 },
-      },
-    ]);
+    // 6 newest songs (stable, deterministic)
+    const songs = await Song.find().sort({ createdAt: -1 }).limit(6);
     res.status(200).json(songs);
   } catch (error) {
     next(error);
@@ -28,14 +21,8 @@ export const getFeaturedSongs = async (req, res, next) => {
 
 export const getMadeForYouSongs = async (req, res, next) => {
   try {
-    const songs = await Song.aggregate([
-      {
-        $sample: { size: 4 },
-      },
-      {
-        $project: { title: 1, artist: 1, imageUrl: 1, audioUrl: 1 },
-      },
-    ]);
+    // oldest 4 songs (no overlap with featured/trending which use newest)
+    const songs = await Song.find().sort({ createdAt: 1 }).limit(4);
     res.status(200).json(songs);
   } catch (error) {
     next(error);
@@ -44,14 +31,8 @@ export const getMadeForYouSongs = async (req, res, next) => {
 
 export const getTrendingSongs = async (req, res, next) => {
   try {
-    const songs = await Song.aggregate([
-      {
-        $sample: { size: 8 },
-      },
-      {
-        $project: { title: 1, artist: 1, imageUrl: 1, audioUrl: 1 },
-      },
-    ]);
+    // next 8 songs after featured (skip 6 newest, no overlap)
+    const songs = await Song.find().sort({ createdAt: -1 }).skip(6).limit(8);
     res.status(200).json(songs);
   } catch (error) {
     next(error);
