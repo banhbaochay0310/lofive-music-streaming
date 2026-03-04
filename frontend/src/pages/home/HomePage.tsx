@@ -33,7 +33,11 @@ const HomePage = () => {
       trendingSongs.length > 0
     ) {
       const allSongs = [...featuredSongs, ...madeForYouSongs, ...trendingSongs];
-      initializeQueue(allSongs);
+      // Deduplicate by _id to prevent queue issues
+      const uniqueSongs = allSongs.filter(
+        (song, index, self) => self.findIndex((s) => s._id === song._id) === index
+      );
+      initializeQueue(uniqueSongs);
     }
   }, [initializeQueue, madeForYouSongs, trendingSongs, featuredSongs]);
 
