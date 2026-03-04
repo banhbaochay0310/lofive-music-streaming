@@ -20,16 +20,19 @@ const Topbar = () => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const suggestions =
     search.trim().length > 0
-      ? songs.filter((song) =>
-          song.title.toLowerCase().includes(search.trim().toLowerCase())
-        )
+      ? songs.filter((song) => {
+          const q = search.trim().toLowerCase();
+          return (
+            song.title.toLowerCase().includes(q) ||
+            song.artist.toLowerCase().includes(q)
+          );
+        })
       : [];
 
   useEffect(() => {
     fetchSongs();
   }, [fetchSongs]);
 
-  // Đóng suggestions khi click ra ngoài (kiểm tra cả input và dropdown)
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -63,6 +66,7 @@ const Topbar = () => {
             onChange={(e) => {
               setSearch(e.target.value);
               setShowSuggestions(true);
+              setHighlightedIndex(-1);
             }}
             onKeyDown={(e) => {
               if (!suggestions.length) return;
@@ -90,10 +94,17 @@ const Topbar = () => {
               }
             }}
             onFocus={() => setShowSuggestions(true)}
-            placeholder="Search songs..."
+            placeholder="Search songs or artists..."
             className="w-full pl-10 pr-3 py-2 rounded-md bg-zinc-800 text-white focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-zinc-400"
             autoComplete="off"
           />
+          {showSuggestions && search.trim().length > 0 && suggestions.length === 0 && (
+            <div
+              className="absolute left-0 right-0 top-12 bg-zinc-900 border border-zinc-700 rounded-md shadow-lg z-20 px-4 py-3 text-sm text-zinc-400"
+            >
+              No results found for "{search.trim()}"
+            </div>
+          )}
           {showSuggestions && suggestions.length > 0 && (
             <div
               ref={dropdownRef}
@@ -108,7 +119,6 @@ const Topbar = () => {
                   onMouseEnter={() => setHighlightedIndex(idx)}
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log("Topbar: selected song", song);
                     setSearch(song.title);
                     setShowSuggestions(false);
                     playAlbum([song], 0);
